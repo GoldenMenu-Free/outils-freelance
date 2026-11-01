@@ -1,0 +1,51 @@
+:root{
+  --ink:#14213d;--paper:#fff;--field:#eef2f6;--line:#cbd5e1;--accent:#2b4eff;--muted:#53627a;
+  --font:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+}
+@media (prefers-color-scheme:dark){
+  :root{--ink:#e8edf6;--paper:#0f1729;--field:#18233b;--line:#2c3a57;--accent:#7f95ff;--muted:#9aa9c4}
+}
+*{box-sizing:border-box}
+body{margin:0;font:1rem/1.6 var(--font);color:var(--ink);background:var(--paper)}
+a{color:var(--accent)}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.wrap{max-width:62rem;margin:0 auto;padding:0 1.25rem}
+header.site{border-bottom:1px solid var(--line);padding:1rem 0}
+header.site .wrap{display:flex;gap:1.5rem;align-items:baseline;flex-wrap:wrap}
+header.site strong{font-size:1.15rem}
+header.site a{text-decoration:none;color:var(--ink)}
+header.site nav a{color:var(--muted);margin-right:1rem}
+h1{font-size:clamp(2rem,5vw,3.2rem);line-height:1.1;margin:3rem 0 1rem;max-width:20ch}
+h2{font-size:1.4rem;margin:2.5rem 0 .75rem}
+p{max-width:65ch}
+.lead{font-size:1.15rem;color:var(--muted)}
+.btn{display:inline-block;background:var(--accent);color:#fff;border:0;border-radius:6px;padding:.7rem 1.2rem;font:inherit;font-weight:600;cursor:pointer;text-decoration:none}
+.btn.alt{background:var(--field);color:var(--ink)}
+footer.site{border-top:1px solid var(--line);margin-top:4rem;padding:1.5rem 0;color:var(--muted);font-size:.9rem}
+.note{border-left:4px solid var(--accent);background:var(--field);padding:.8rem 1rem;max-width:65ch}
+
+/* outil facture */
+.tool{display:grid;gap:2rem;grid-template-columns:minmax(0,1fr);margin-top:1.5rem}
+@media (min-width:60rem){.tool{grid-template-columns:minmax(0,22rem) minmax(0,1fr)}}
+form fieldset{border:1px solid var(--line);border-radius:6px;margin:0 0 1rem;padding:.8rem 1rem}
+form legend{font-weight:600;padding:0 .4rem}
+label{display:block;font-size:.9rem;margin:.5rem 0 .15rem}
+input,select,textarea{width:100%;font:inherit;color:var(--ink);background:var(--field);border:1px solid var(--line);border-radius:4px;padding:.45rem .6rem}
+.row{display:grid;grid-template-columns:1fr 4rem 5.5rem;gap:.4rem;margin-bottom:.4rem}
+.check{display:flex;gap:.5rem;align-items:center}
+.check input{width:auto}
+#facture{background:#fff;color:#111;border:1px solid var(--line);padding:2rem;min-height:30rem;font-size:.95rem}
+#facture h3{margin:0 0 1rem;font-size:1.5rem}
+#facture .cols{display:flex;justify-content:space-between;gap:1rem;flex-wrap:wrap;margin-bottom:1.5rem}
+#facture table{width:100%;border-collapse:collapse;margin:1rem 0}
+#facture th,#facture td{border-bottom:1px solid #ccc;padding:.4rem;text-align:left}
+#facture td.n,#facture th.n{text-align:right}
+#facture .tot{margin-left:auto;width:min(18rem,100%)}
+#facture .tot div{display:flex;justify-content:space-between;padding:.2rem 0}
+#facture .tot .ttc{font-weight:700;border-top:2px solid #111;margin-top:.3rem;padding-top:.4rem}
+#facture small{display:block;color:#444;margin-top:1rem;white-space:pre-line}
+@media print{
+  body *{visibility:hidden}
+  #facture,#facture *{visibility:visible}
+  #facture{position:absolute;inset:0;border:0;padding:0}
+}
