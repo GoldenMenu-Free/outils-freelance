@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Calculateur de TJM freelance : quel tarif journalier pour un auto-entrepreneur ?</title>
+<meta name="description" content="Calculez le tarif journalier (TJM) à facturer pour atteindre le revenu net que vous visez en micro-entreprise. Gratuit, sans inscription.">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="site"><div class="wrap">
+  <a href="index.html"><strong>Outils Freelance</strong></a>
+  <nav><a href="facture.html">Générateur de facture</a><a href="outils-pdf.html">Outils PDF</a><a href="calculateur-tjm.html">Calculateur TJM</a><a href="comparatif-facturation.html">Logiciels de facturation</a></nav>
+</div></header>
+
+<main class="wrap">
+  <h1>Calculateur de TJM freelance</h1>
+  <p class="lead">Quel tarif journalier facturer pour atteindre le revenu net que vous visez, une fois les cotisations et vos frais payés ?</p>
+
+  <div class="tool">
+    <form onsubmit="return false" id="f">
+      <fieldset><legend>Votre objectif</legend>
+        <label for="net">Revenu net souhaité par mois (€)</label><input id="net" type="number" min="0" step="any" value="2000">
+        <label for="frais">Frais professionnels par mois (€)</label><input id="frais" type="number" min="0" step="any" value="100">
+      </fieldset>
+      <fieldset><legend>Votre activité</legend>
+        <label for="act">Type d’activité</label>
+        <select id="act">
+          <option value="25.6">Prestations libérales non réglementées (conseil, développement, graphisme…)</option>
+          <option value="21.2">Prestations commerciales ou artisanales (BIC)</option>
+          <option value="23.2">Professions libérales affiliées à la Cipav</option>
+          <option value="">Autre : saisir un taux</option>
+        </select>
+        <label for="taux">Taux de cotisations (%)</label><input id="taux" type="number" min="0" max="60" step="any" value="25.6">
+      </fieldset>
+      <fieldset><legend>Votre rythme</legend>
+        <label for="mois">Mois travaillés par an</label><input id="mois" type="number" min="1" max="12" step="any" value="11">
+        <label for="jours">Jours facturés par mois</label><input id="jours" type="number" min="1" max="31" step="any" value="15">
+      </fieldset>
+    </form>
+
+    <section aria-live="polite">
+      <div class="note" id="res" style="font-size:1.1rem"></div>
+      <p id="detail"></p>
+    </section>
+  </div>
+
+  <h2>Comment est calculé le TJM</h2>
+  <p>En micro-entreprise, les cotisations sociales s’appliquent au chiffre d’affaires encaissé, et vos frais réels se paient sur ce qu’il reste. Le chiffre d’affaires annuel nécessaire est donc : (revenu net annuel + frais annuels) ÷ (1 − taux de cotisations). Le TJM est ce chiffre d’affaires divisé par le nombre de jours facturés dans l’année.</p>
+  <p>Exemple : 2 000 € nets par mois, 100 € de frais, un taux de 25,6 %, 11 mois travaillés et 15 jours facturés par mois donnent un chiffre d’affaires d’environ 33 871 € par an, soit un TJM d’environ 205 € HT.</p>
+
+  <h2>Ce que ce calcul ne comprend pas</h2>
+  <p>L’impôt sur le revenu, la CFE, la contribution à la formation professionnelle et un éventuel versement libératoire ne sont pas inclus. Les taux de cotisations proposés sont ceux publiés pour 2026, mais ils dépendent de votre situation (caisse de retraite, ACRE…). Vérifiez-les sur le site de l’Urssaf avant de fixer vos prix. Pensez aussi au plafond de chiffre d’affaires du régime micro.</p>
+  <p class="note">Une fois votre tarif fixé, <a href="facture.html">créez une facture gratuite</a> ou <a href="comparatif-facturation.html">comparez les logiciels de facturation</a>.</p>
+</main>
+
+<footer class="site"><div class="wrap">Outils Freelance. Simulation indicative, ne remplace pas un conseil comptable.</div></footer>
+
+<script>
+const $ = id => document.getElementById(id);
+const eur = (n, d = 0) => n.toLocaleString("fr-FR", { style: "currency", currency: "EUR", maximumFractionDigits: d, minimumFractionDigits: d });
+function calc() {
+  const net = parseFloat($("net").value), frais = parseFloat($("frais").value) || 0,
+        t = parseFloat($("taux").value), m = parseFloat($("mois").value), j = parseFloat($("jours").value);
+  if ([net, t, m, j].some(v => isNaN(v)) || net < 0 || t < 0 || t >= 100 || m <= 0 || j <= 0) {
+    $("res").textContent = "Renseignez tous les champs avec des valeurs valides."; $("detail").textContent = ""; return;
+  }
+  const ca = (net * 12 + frais * 12) / (1 - t / 100);
+  const tjm = ca / (m * j);
+  $("res").textContent = "TJM à facturer : " + eur(tjm) + " HT";
+  $("detail").textContent = "Chiffre d’affaires annuel nécessaire : " + eur(ca) + " (environ " + eur(ca / 12) + " par mois). Cotisations estimées : " + eur(ca * t / 100) + " par an.";
+}
+$("act").addEventListener("change", e => { if (e.target.value) $("taux").value = e.target.value; calc(); });
+$("f").addEventListener("input", calc);
+calc();
+</script>
+</body>
+</html>
