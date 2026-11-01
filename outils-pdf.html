@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Outils PDF gratuits : fusionner, supprimer des pages, pivoter (sans envoi de fichier)</title>
+<meta name="description" content="Fusionnez des PDF, extrayez ou supprimez des pages et faites pivoter un PDF gratuitement. Vos fichiers restent sur votre appareil.">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="site"><div class="wrap">
+  <a href="index.html"><strong>Outils Freelance</strong></a>
+  <nav><a href="facture.html">Générateur de facture</a><a href="outils-pdf.html">Outils PDF</a><a href="comparatif-facturation.html">Logiciels de facturation</a></nav>
+</div></header>
+
+<main class="wrap">
+  <h1>Outils PDF gratuits</h1>
+  <p class="lead">Fusionner, supprimer des pages, pivoter. Sans inscription, et vos fichiers ne quittent jamais votre appareil.</p>
+  <p id="libErr" style="color:#b00020"></p>
+
+  <h2>Fusionner des PDF</h2>
+  <form onsubmit="return false">
+    <label for="mFiles">Choisissez deux PDF ou plus (vous pouvez en ajouter plusieurs fois)</label>
+    <input id="mFiles" type="file" accept="application/pdf" multiple>
+    <ul id="mList" style="padding-left:1.2rem"></ul>
+    <button type="button" class="btn" id="mGo">Fusionner et télécharger</button>
+    <p id="mMsg" role="status"></p>
+  </form>
+
+  <h2>Extraire ou supprimer des pages d’un PDF</h2>
+  <form onsubmit="return false">
+    <label for="pFile">Votre PDF</label><input id="pFile" type="file" accept="application/pdf">
+    <label for="pMode">Action</label>
+    <select id="pMode"><option value="keep">Garder uniquement ces pages</option><option value="del">Supprimer ces pages</option></select>
+    <label for="pRange">Pages (exemple : 1-3, 5, 8)</label><input id="pRange" placeholder="1-3, 5">
+    <p></p>
+    <button type="button" class="btn" id="pGo">Créer le nouveau PDF</button>
+    <p id="pMsg" role="status"></p>
+  </form>
+
+  <h2>Faire pivoter un PDF</h2>
+  <form onsubmit="return false">
+    <label for="rFile">Votre PDF</label><input id="rFile" type="file" accept="application/pdf">
+    <label for="rAngle">Rotation</label>
+    <select id="rAngle"><option value="90">90° vers la droite</option><option value="180">180°</option><option value="270">90° vers la gauche</option></select>
+    <label for="rRange">Pages concernées (vide = toutes)</label><input id="rRange" placeholder="toutes">
+    <p></p>
+    <button type="button" class="btn" id="rGo">Pivoter et télécharger</button>
+    <p id="rMsg" role="status"></p>
+  </form>
+
+  <p class="note">Les PDF protégés par mot de passe ne peuvent pas être modifiés ici. Ces outils ne permettent pas de modifier le texte contenu dans un PDF.</p>
+</main>
+
+<footer class="site"><div class="wrap">Outils Freelance. Aucun fichier n’est envoyé ni stocké.</div></footer>
+
+<script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+<script>
+const $ = id => document.getElementById(id);
+if (typeof PDFLib === "undefined") { $("libErr").textContent = "La bibliothèque PDF n’a pas pu se charger. Vérifiez votre connexion et rechargez la page."; }
+const msg = (id, t, err) => { const e = $(id); e.textContent = t; e.style.color = err ? "#b00020" : "inherit"; };
+function save(bytes, name) {
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([bytes], { type: "application/pdf" }));
+  a.download = name; a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+}
+async function loadPdf(file) {
+  try { return await PDFLib.PDFDocument.load(await file.arrayBuffer()); }
+  catch (e) { throw new Error("Impossible de lire « " + file.name + " ». Le fichier est peut-être protégé ou abîmé."); }
+}
+function parseRange(str, max) {
+  const s = new Set();
+  str.split(",").forEach(p => {
+    p = p.trim(); if (!p) return;
+    const m = p.match(/^(\d+)(?:\s*-\s*(\d+))?$/);
+    if (!m) throw new Error("Format invalide : « " + p + " ». Exemple : 1-3, 5");
+    let a = +m[1], b = m[2] ? +m[2] : a; if (a > b) [a, b] = [b, a];
+    if (a < 1 || b > max) throw new Error("Page hors limites : ce PDF a " + max + " page(s).");
+    for (let i = a; i <= b; i++) s.add(i - 1);
+  });
+  return [...s].sort((x, y) => x - y);
+}
+
+/* Fusion */
+let files = [];
+function drawList() {
+  const ul = $("mList"); ul.replaceChildren();
+  files.forEach((f, i) => {
+    const li = document.createElement("li");
+    li.append(document.createTextNode(f.name + " "));
+    [["↑", -1], ["↓", 1], ["Retirer", 0]].forEach(([t, d]) => {
+      const b = document.createElement("button"); b.type = "button"; b.className = "btn alt"; b.style.padding = ".15rem .5rem"; b.style.marginLeft = ".3rem"; b.textContent = t;
+      b.onclick = () => {
+        if (d === 0) files.splice(i, 1);
+        else { const j = i + d; if (j < 0 || j >= files.length) return; [files[i], files[j]] = [files[j], files[i]]; }
+        drawList();
+      };
+      li.appendChild(b);
+    });
+    ul.appendChild(li);
+  });
+}
+$("mFiles").onchange = e => { files = files.concat([...e.target.files]); e.target.value = ""; drawList(); };
+$("mGo").onclick = async () => {
+  try {
+    if (files.length < 2) throw new Error("Ajoutez au moins deux PDF.");
+    msg("mMsg", "Fusion en cours…");
+    const out = await PDFLib.PDFDocument.create();
+    for (const f of files) {
+      const d = await loadPdf(f);
+      (await out.copyPages(d, d.getPageIndices())).forEach(p => out.addPage(p));
+    }
+    save(await out.save(), "fusion.pdf"); msg("mMsg", "Terminé : fusion.pdf téléchargé.");
+  } catch (e) { msg("mMsg", e.message, true); }
+};
+
+/* Extraire / supprimer */
+$("pGo").onclick = async () => {
+  try {
+    const f = $("pFile").files[0]; if (!f) throw new Error("Choisissez un PDF.");
+    const d = await loadPdf(f), n = d.getPageCount();
+    const sel = parseRange($("pRange").value, n);
+    if (!sel.length) throw new Error("Indiquez au moins une page.");
+    const keep = $("pMode").value === "keep" ? sel : d.getPageIndices().filter(i => !sel.includes(i));
+    if (!keep.length) throw new Error("Il ne resterait aucune page.");
+    const out = await PDFLib.PDFDocument.create();
+    (await out.copyPages(d, keep)).forEach(p => out.addPage(p));
+    save(await out.save(), "pages-pdf.pdf"); msg("pMsg", "Terminé : " + keep.length + " page(s) sur " + n + ".");
+  } catch (e) { msg("pMsg", e.message, true); }
+};
+
+/* Pivoter */
+$("rGo").onclick = async () => {
+  try {
+    const f = $("rFile").files[0]; if (!f) throw new Error("Choisissez un PDF.");
+    const d = await loadPdf(f), n = d.getPageCount();
+    const txt = $("rRange").value.trim();
+    const sel = txt ? parseRange(txt, n) : d.getPageIndices();
+    const add = +$("rAngle").value;
+    sel.forEach(i => { const p = d.getPage(i); p.setRotation(PDFLib.degrees((p.getRotation().angle + add) % 360)); });
+    save(await d.save(), "pdf-pivote.pdf"); msg("rMsg", "Terminé : " + sel.length + " page(s) pivotée(s).");
+  } catch (e) { msg("rMsg", e.message, true); }
+};
+</script>
+</body>
+</html>
