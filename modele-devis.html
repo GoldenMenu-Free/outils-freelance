@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Modèle de devis gratuit en PDF pour freelance et auto-entrepreneur</title>
+<meta name="description" content="Créez un devis professionnel en quelques clics et enregistrez-le en PDF. Gratuit, sans inscription, vos données restent sur votre appareil.">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="site"><div class="wrap">
+  <a href="index.html"><strong>Outils Freelance</strong></a>
+  <nav><a href="facture.html">Générateur de facture</a><a href="modele-devis.html">Modèle de devis</a><a href="outils-pdf.html">Outils PDF</a><a href="calculateur-tjm.html">Calculateur TJM</a><a href="lancer-activite-freelance.html">Lancer son activité</a><a href="comparatif-facturation.html">Logiciels de facturation</a><a href="comparatif-comptes-pro.html">Comptes pro</a></nav>
+</div></header>
+
+<main class="wrap">
+  <h1>Modèle de devis gratuit</h1>
+  <p class="lead">Remplissez le formulaire, vérifiez l’aperçu, puis enregistrez votre devis en PDF. Vos données ne quittent pas votre appareil.</p>
+
+  <div class="tool">
+    <form id="f" autocomplete="off">
+      <fieldset><legend>Votre entreprise</legend>
+        <label for="vNom">Nom ou raison sociale</label><input id="vNom">
+        <label for="vAdr">Adresse</label><textarea id="vAdr" rows="2"></textarea>
+        <label for="vSiret">SIRET</label><input id="vSiret" inputmode="numeric">
+      </fieldset>
+      <fieldset><legend>Votre client</legend>
+        <label for="cNom">Nom ou société</label><input id="cNom">
+        <label for="cAdr">Adresse</label><textarea id="cAdr" rows="2"></textarea>
+      </fieldset>
+      <fieldset><legend>Devis</legend>
+        <label for="num">Numéro</label><input id="num" value="D-2026-001">
+        <label for="date">Date d’émission</label><input id="date" type="date">
+        <label for="ech">Valable jusqu’au</label><input id="ech" type="date">
+        <label for="objet">Objet du devis</label><input id="objet" placeholder="Création d’un site vitrine">
+      </fieldset>
+      <fieldset><legend>Prestations</legend>
+        <div id="lignes"></div>
+        <button type="button" class="btn alt" id="add">Ajouter une ligne</button>
+      </fieldset>
+      <fieldset><legend>TVA et acompte</legend>
+        <div class="check"><input type="checkbox" id="franchise" checked><label for="franchise" style="margin:0">TVA non applicable (franchise en base)</label></div>
+        <label for="taux">Taux de TVA si applicable</label>
+        <select id="taux"><option value="20">20 %</option><option value="10">10 %</option><option value="5.5">5,5 %</option></select>
+        <label for="acompte">Acompte demandé à la commande (%, facultatif)</label><input id="acompte" type="number" min="0" max="100" step="any" value="0">
+      </fieldset>
+      <fieldset><legend>Conditions</legend>
+        <label for="cond">Délais, modalités de paiement… (facultatif)</label>
+        <textarea id="cond" rows="3" placeholder="Délai de réalisation : 3 semaines. Paiement par virement à 30 jours."></textarea>
+      </fieldset>
+      <button type="button" class="btn" id="pdf">Enregistrer en PDF</button>
+    </form>
+
+    <section aria-label="Aperçu du devis">
+      <div id="facture"></div>
+    </section>
+  </div>
+
+  <h2>Que doit contenir un devis ?</h2>
+  <p>Un devis clair indique l’identité des deux parties, la date, la durée de validité de l’offre, le détail des prestations avec leur prix, le total (avec ou sans TVA) et les conditions de réalisation et de paiement. Une fois signé avec la mention « bon pour accord », il engage les deux parties.</p>
+  <p>Certains secteurs ont des obligations supplémentaires (travaux, services à la personne…). Vérifiez celles qui s’appliquent à votre activité. Quand le devis est accepté, <a href="facture.html">créez votre facture</a> avec le même détail des prestations.</p>
+
+  <p class="note" style="margin-top:2rem">Ce modèle est indicatif et ne remplace pas un conseil juridique ou comptable. Vérifiez les mentions obligatoires selon votre situation.</p>
+</main>
+
+<footer class="site"><div class="wrap">Outils Freelance. Aucune donnée n’est envoyée ni stockée.</div></footer>
+
+<script>
+const $ = id => document.getElementById(id);
+const eur = n => n.toLocaleString("fr-FR",{style:"currency",currency:"EUR"});
+const fdate = v => v ? new Date(v+"T00:00:00").toLocaleDateString("fr-FR") : "";
+$("date").value = new Date().toISOString().slice(0,10);
+
+function addLigne(d="",q=1,p=0){
+  const r = document.createElement("div"); r.className="row";
+  r.innerHTML = '<input aria-label="Description" placeholder="Description"><input aria-label="Quantité" type="number" min="0" step="any"><input aria-label="Prix unitaire HT" type="number" min="0" step="any">';
+  const [a,b,c] = r.children; a.value=d; b.value=q; c.value=p;
+  $("lignes").appendChild(r);
+}
+addLigne("Prestation",1,0);
+$("add").onclick = () => { addLigne(); render(); };
+
+function line(label,val,cls){
+  const d=document.createElement("div"); if(cls)d.className=cls;
+  const a=document.createElement("span"),b=document.createElement("span");
+  a.textContent=label; b.textContent=val; d.append(a,b); return d;
+}
+function bloc(titre,nom,adr,extra){
+  const d=document.createElement("div");
+  const s=document.createElement("strong"); s.textContent=titre; d.appendChild(s);
+  [nom,adr,extra].forEach(t=>{ if(t){ const p=document.createElement("div"); p.style.whiteSpace="pre-line"; p.textContent=t; d.appendChild(p);} });
+  return d;
+}
+
+function render(){
+  const out=$("facture"); out.replaceChildren();
+  const h=document.createElement("h3"); h.textContent="Devis n° "+$("num").value; out.appendChild(h);
+  const cols=document.createElement("div"); cols.className="cols";
+  cols.append(
+    bloc("Émetteur",$("vNom").value,$("vAdr").value,$("vSiret").value?"SIRET : "+$("vSiret").value:""),
+    bloc("Client",$("cNom").value,$("cAdr").value,"")
+  );
+  out.appendChild(cols);
+  const dates=document.createElement("div");
+  dates.textContent="Date : "+fdate($("date").value)+($("ech").value?"  |  Valable jusqu’au : "+fdate($("ech").value):"");
+  out.appendChild(dates);
+  if($("objet").value){ const o=document.createElement("div"); o.style.marginTop=".5rem"; const s=document.createElement("strong"); s.textContent="Objet : "; o.append(s,document.createTextNode($("objet").value)); out.appendChild(o); }
+
+  const t=document.createElement("table");
+  t.innerHTML='<thead><tr><th>Description</th><th class="n">Qté</th><th class="n">PU HT</th><th class="n">Total HT</th></tr></thead>';
+  const tb=document.createElement("tbody"); let ht=0;
+  [...$("lignes").children].forEach(r=>{
+    const [a,b,c]=[...r.children]; const q=parseFloat(b.value)||0, p=parseFloat(c.value)||0, s=q*p; ht+=s;
+    if(!a.value && !s) return;
+    const tr=document.createElement("tr");
+    [a.value,String(q),eur(p),eur(s)].forEach((v,i)=>{ const td=document.createElement("td"); if(i)td.className="n"; td.textContent=v; tr.appendChild(td); });
+    tb.appendChild(tr);
+  });
+  t.appendChild(tb); out.appendChild(t);
+
+  const fr=$("franchise").checked, taux=fr?0:parseFloat($("taux").value), tva=ht*taux/100, total=ht+tva;
+  const tot=document.createElement("div"); tot.className="tot";
+  tot.appendChild(line("Total HT",eur(ht)));
+  if(!fr) tot.appendChild(line("TVA ("+taux.toString().replace(".",",")+" %)",eur(tva)));
+  tot.appendChild(line(fr?"Total":"Total TTC",eur(total),"ttc"));
+  const ac=parseFloat($("acompte").value)||0;
+  if(ac>0 && ac<=100) tot.appendChild(line("Acompte à la commande ("+ac.toString().replace(".",",")+" %)",eur(total*ac/100)));
+  out.appendChild(tot);
+
+  const m=document.createElement("small");
+  m.textContent=(fr?"TVA non applicable, art. 293 B du CGI.\n":"")+
+    ($("ech").value?"Devis valable jusqu’au "+fdate($("ech").value)+".\n":"")+
+    ($("cond").value?$("cond").value+"\n":"");
+  out.appendChild(m);
+
+  const sig=document.createElement("div");
+  sig.style.cssText="border:1px solid #999;margin-top:1.5rem;padding:.6rem;min-height:5rem;font-size:.9rem";
+  sig.textContent="Bon pour accord, date et signature du client :";
+  out.appendChild(sig);
+}
+$("f").addEventListener("input",render);
+$("f").addEventListener("change",render);
+$("pdf").onclick=()=>{ render(); window.print(); };
+render();
+</script>
+</body>
+</html>
