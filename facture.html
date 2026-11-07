@@ -6,10 +6,19 @@
 <title>Générateur de facture gratuit en PDF pour auto-entrepreneur</title>
 <meta name="description" content="Créez une facture conforme en quelques clics et enregistrez-la en PDF. Gratuit, sans inscription, vos données restent sur votre appareil.">
 <link rel="stylesheet" href="style.css">
+<link rel="canonical" href="https://goldenmenu-free.github.io/outils-freelance/facture.html">
+<meta name="theme-color" content="#2340d9">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22%3E%3Crect width=%22100%22 height=%22100%22 rx=%2218%22 fill=%22%232340d9%22/%3E%3Ctext x=%2250%22 y=%2272%22 font-size=%2268%22 font-family=%22Georgia,serif%22 font-weight=%22700%22 text-anchor=%22middle%22 fill=%22white%22%3EF%3C/text%3E%3C/svg%3E">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="fr_FR">
+<meta property="og:site_name" content="Outils Freelance">
+<meta property="og:url" content="https://goldenmenu-free.github.io/outils-freelance/facture.html">
+<meta property="og:title" content="Générateur de facture gratuit en PDF pour auto-entrepreneur">
+<meta property="og:description" content="Créez une facture conforme en quelques clics et enregistrez-la en PDF. Gratuit, sans inscription, vos données restent sur votre appareil.">
 </head>
 <body>
 <header class="site"><div class="wrap">
-  <a href="index.html"><strong>Outils Freelance</strong></a>
+  <a href="index.html">Outils Freelance</a>
   <nav><a href="facture.html">Générateur de facture</a><a href="modele-devis.html">Modèle de devis</a><a href="outils-pdf.html">Outils PDF</a><a href="calculateur-tjm.html">Calculateur TJM</a><a href="lancer-activite-freelance.html">Lancer son activité</a><a href="comparatif-facturation.html">Logiciels de facturation</a><a href="comparatif-comptes-pro.html">Comptes pro</a></nav>
 </div></header>
 
@@ -125,5 +134,6 @@ $("f").addEventListener("change",render);
 $("pdf").onclick=()=>{ render(); window.print(); };
 render();
 </script>
+<script>document.querySelectorAll("header.site nav a").forEach(function(a){if(a.getAttribute("href")===(location.pathname.split("/").pop()||"index.html"))a.setAttribute("aria-current","page")})</script>
 </body>
 </html>
